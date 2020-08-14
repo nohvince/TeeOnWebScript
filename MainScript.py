@@ -8,14 +8,14 @@ import re
 GOOGLE_CHROME_PATH = os.environ['GOOGLE_CHROME_BIN']
 CHROMEDRIVER_PATH = os.environ['CHROMEDRIVER_PATH']
 
-TIME_TO_BOOK = '12:30' # 24hr format hh:mm
+TIME_TO_BOOK = '11:00' # 24hr format hh:mm
 EIGHTEEN_HOLES = True
-NUM_PLAYERS = 1
-LOWER_BOUND_TIME = '12:30'
-UPPER_BOUND_TIME = '20:00'
+NUM_PLAYERS = 4
+LOWER_BOUND_TIME = '11:00'
+UPPER_BOUND_TIME = '15:00'
 
-USERNAME = 'test'
-PASSWORD = 'test'
+USERNAME = 'chris.03'
+PASSWORD = 'mugzy19'
 LOGIN_PAGE_REGEX = '.*SignInGolferSection.*'
 CART_PAGE_REGEX = '.*WebBookingChooseCarts.*'
 SEARCH_RESULTS_REGEX = '.*WebBookingSearchResults.*'
@@ -55,8 +55,8 @@ for btn in num_players_btn:
 browser.find_element_by_xpath('/html/body/div[7]/div[1]/div[2]/div/div/div/div/div/div/div/form/div[5]/div/select/optgroup[9]/option[42]').click()
 
 # Select course
-#browser.find_element_by_xpath('/html/body/div[7]/div[1]/div[2]/div/div/div/div/div/div/div/form/div[5]/div/div[1]/div/div/table/tbody/tr[7]/td[1]/label/span').click()
-browser.find_element_by_xpath('/html/body/div[7]/div[1]/div[2]/div/div/div/div/div/div/div/form/div[5]/div/div[1]/div/div/table/tbody/tr[5]/td[1]/label/span').click()
+browser.find_element_by_xpath('/html/body/div[7]/div[1]/div[2]/div/div/div/div/div/div/div/form/div[5]/div/div[1]/div/div/table/tbody/tr[7]/td[1]/label/span').click()
+
 
 # Go to next page
 browser.find_element_by_xpath('/html/body/div[7]/div[1]/div[2]/div/div/div/div/div/div/div/form/a[2]').click()
@@ -113,35 +113,53 @@ if closest_time_container != 0:
 else:
     print('No times found in given range')
 
-sleep(0.5)
-
 # Not sure how Don Valley selection behaves (whether it goes direct to login or brings up popup). Deal with both cases
 search = re.compile(SEARCH_RESULTS_REGEX)
 carts = re.compile(CART_PAGE_REGEX)
-if re.match(carts, browser.current_url):
-    browser.find_element_by_xpath('/html/body/div[6]/div[1]/div[2]/div/div/div/div/div/div/div/div[2]/form/div/div/label[1]').click()
-    browser.find_element_by_xpath('/html/body/div[6]/div[1]/div[2]/div/div/div/div/div/div/div/a[2]').click()
-elif re.match(search, browser.current_url):
-    p = re.compile('.*' + closest_time + '.*')
-    popups = browser.find_elements_by_class_name('GenericPopup')
-    found_popup = False
+login = re.compile(LOGIN_PAGE_REGEX)
 
-    for popup in popups:
-        elements = popup.find_elements_by_xpath(".//*")
+count = 0
+max_attempts = 3
+while not re.match(login, browser.current_url):
+    sleep(0.5)
+    count += 1
+    if re.match(carts, browser.current_url):
+        browser.find_element_by_xpath('/html/body/div[6]/div[1]/div[2]/div/div/div/div/div/div/div/div[2]/form/div/div/label[1]').click()
+        browser.find_element_by_xpath('/html/body/div[6]/div[1]/div[2]/div/div/div/div/div/div/div/a[2]').click()
+    elif re.match(search, browser.current_url):
+        p = re.compile('.*' + closest_time + '.*')
+        popups = browser.find_elements_by_class_name('GenericPopup')
+        found_popup = False
 
-        for element in elements:
-            if re.match(p, element.text):
-                found_popup = True
+        for popup in popups:
+            elements = popup.find_elements_by_xpath(".//*")
 
-        if found_popup:
-            popup.find_element_by_xpath('.//div/a[2]').click()
-            break
+            for element in elements:
+                if re.match(p, element.text):
+                    found_popup = True
+
+            if found_popup:
+                popup.find_element_by_xpath('.//div/a[2]').click()
+                break
+
+    if count >= max_attempts:
+        print("Reached max attempts to reach login page")
+        break
 
 sleep(0.5)
 
 # Login
-login = re.compile(LOGIN_PAGE_REGEX)
-if re.match(login, browser.current_url):
-    browser.find_element_by_xpath('//*[@id="Username"]').send_keys(USERNAME)
-    browser.find_element_by_xpath('//*[@id="Password"]').send_keys(PASSWORD)
-    browser.find_element_by_xpath('//*[@id="sign-in-btn"]').click()
+browser.find_element_by_xpath('//*[@id="Username"]').send_keys(USERNAME)
+browser.find_element_by_xpath('//*[@id="Password"]').send_keys(PASSWORD)
+browser.find_element_by_xpath('//*[@id="sign-in-btn"]').click()
+
+# Click past last confirmation pages (note doesn't know how to handle the required payment page
+try:
+    browser.find_element_by_xpath('/html/body/div[16]/div[1]/div[2]/div/div/div/div/div/div/div/a[2]').click()
+except:
+    browser.find_element_by_xpath('/html/body/div[3]/div[1]/div[2]/div/div/div/div/div/div/div/a[2]').click()
+
+try:
+    browser.find_element_by_xpath('/html/body/div[3]/div[1]/div[2]/div/div/div/div/div/div/div/a[2]').click()
+except:
+    print("No need for second selection page")
