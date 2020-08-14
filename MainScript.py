@@ -33,7 +33,7 @@ browser.get('https://www.tee-on.com/PubGolf/servlet/com.teeon.teesheet.servlets.
 DATE_TO_BOOK = datetime.date.today() + datetime.timedelta(days=5)
 browser.find_element_by_xpath('/html/body/div[7]/div[1]/div[2]/div/div/div/div/div/div/div/form/div[1]/select/option[7]').click()
 
-# Select preffered time
+# Select preferred time
 time_options = browser.find_element_by_xpath('//*[@id="SearchTime"]')
 for option in time_options.find_elements_by_tag_name('option'):
     if option.get_attribute('value') == TIME_TO_BOOK:
