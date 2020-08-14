@@ -9,13 +9,13 @@ GOOGLE_CHROME_PATH = os.environ['GOOGLE_CHROME_BIN']
 CHROMEDRIVER_PATH = os.environ['CHROMEDRIVER_PATH']
 
 TIME_TO_BOOK = '11:00' # 24hr format hh:mm
-EIGHTEEN_HOLES = True
-NUM_PLAYERS = 4
-LOWER_BOUND_TIME = '11:00'
-UPPER_BOUND_TIME = '15:00'
+EIGHTEEN_HOLES = False
+NUM_PLAYERS = 1
+LOWER_BOUND_TIME = '9:00'
+UPPER_BOUND_TIME = '20:00'
 
-USERNAME = 'chris.03'
-PASSWORD = 'mugzy19'
+USERNAME = os.environ['USERNAME']
+PASSWORD = os.environ['PASSWORD']
 LOGIN_PAGE_REGEX = '.*SignInGolferSection.*'
 CART_PAGE_REGEX = '.*WebBookingChooseCarts.*'
 SEARCH_RESULTS_REGEX = '.*WebBookingSearchResults.*'
@@ -30,10 +30,10 @@ browser = webdriver.Chrome(CHROMEDRIVER_PATH, chrome_options=chrome_options)
 browser.get('https://www.tee-on.com/PubGolf/servlet/com.teeon.teesheet.servlets.golfersection.WebBookingSearchSteps?CourseGroupID=12&BackTarget=/')
 
 # Select 5 days from now
-DATE_TO_BOOK = datetime.date.today() + datetime.timedelta(days=5)
+DATE_TO_BOOK = datetime.date.today() + datetime.timedelta(days=4)
 browser.find_element_by_xpath('/html/body/div[7]/div[1]/div[2]/div/div/div/div/div/div/div/form/div[1]/select/option[7]').click()
 
-# Select preffered time
+# Select preferred time
 time_options = browser.find_element_by_xpath('//*[@id="SearchTime"]')
 for option in time_options.find_elements_by_tag_name('option'):
     if option.get_attribute('value') == TIME_TO_BOOK:
@@ -55,7 +55,7 @@ for btn in num_players_btn:
 browser.find_element_by_xpath('/html/body/div[7]/div[1]/div[2]/div/div/div/div/div/div/div/form/div[5]/div/select/optgroup[9]/option[42]').click()
 
 # Select course
-browser.find_element_by_xpath('/html/body/div[7]/div[1]/div[2]/div/div/div/div/div/div/div/form/div[5]/div/div[1]/div/div/table/tbody/tr[7]/td[1]/label/span').click()
+browser.find_element_by_xpath('/html/body/div[7]/div[1]/div[2]/div/div/div/div/div/div/div/form/div[5]/div/div[1]/div/div/table/tbody/tr[8]/td[1]/label/span').click()
 
 
 # Go to next page
@@ -163,3 +163,5 @@ try:
     browser.find_element_by_xpath('/html/body/div[3]/div[1]/div[2]/div/div/div/div/div/div/div/a[2]').click()
 except:
     print("No need for second selection page")
+
+browser.quit()
