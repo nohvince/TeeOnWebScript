@@ -83,7 +83,6 @@ def don_valley_form_filler():
         time_split = time.split(':')
         hour = int(time_split[0]) if time_con.find_element_by_class_name('am-pm').text.lower() == 'am' else (12 if int(time_split[0]) == 12 else int(time_split[0]) + 12)
         min = int(time_split[1][0:2])
-        print(time_con.find_element_by_class_name('am-pm').text)
 
         if ((hour == LOWER_BOUND_HOUR and min >= LOWER_BOUND_MIN) or (hour > LOWER_BOUND_HOUR)) and ((hour < UPPER_BOUND_HOUR) or (hour == UPPER_BOUND_HOUR and min <= UPPER_BOUND_MIN)):
             good_times.append(time_con)
