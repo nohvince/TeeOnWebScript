@@ -136,16 +136,16 @@ while not re.match(login, browser.current_url):
         popups = browser.find_elements_by_class_name('GenericPopup')
         found_popup = False
 
-    for popup in popups:
-        elements = popup.find_elements_by_xpath(".//*")
+        for popup in popups:
+            elements = popup.find_elements_by_xpath(".//*")
 
-        for element in elements:
-            if re.match(p, element.text):
-                found_popup = True
+            for element in elements:
+                if re.match(p, element.text):
+                    found_popup = True
 
-        if found_popup:
-            popup.find_element_by_xpath('.//div/a[2]').click()
-            break
+            if found_popup:
+                popup.find_element_by_xpath('.//div/a[2]').click()
+                break
 
     if count >= max_attempts:
         print("Reached max attempts to reach login page")
