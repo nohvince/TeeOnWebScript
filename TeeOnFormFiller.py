@@ -165,3 +165,5 @@ def don_valley_form_filler():
         browser.find_element_by_xpath('/html/body/div[3]/div[1]/div[2]/div/div/div/div/div/div/div/a[2]').click()
     except:
         print("No need for second selection page")
+
+    browser.quit()
