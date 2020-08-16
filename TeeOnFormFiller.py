@@ -10,11 +10,11 @@ def don_valley_form_filler():
     GOOGLE_CHROME_PATH = os.environ['GOOGLE_CHROME_BIN']
     CHROMEDRIVER_PATH = os.environ['CHROMEDRIVER_PATH']
 
-    TIME_TO_BOOK = '11:00' # 24hr format hh:mm
+    TIME_TO_BOOK = '14:00' # 24hr format hh:mm
     EIGHTEEN_HOLES = True
-    NUM_PLAYERS = 4
-    LOWER_BOUND_TIME = '11:00'
-    UPPER_BOUND_TIME = '15:00'
+    NUM_PLAYERS = 1
+    LOWER_BOUND_TIME = '9:00'
+    UPPER_BOUND_TIME = '20:00'
 
     USERNAME = 'chris.03'
     PASSWORD = 'mugzy19'
@@ -33,13 +33,19 @@ def don_valley_form_filler():
 
     # Select 5 days from now
     DATE_TO_BOOK = datetime.date.today() + datetime.timedelta(days=5)
-    browser.find_element_by_xpath('/html/body/div[7]/div[1]/div[2]/div/div/div/div/div/div/div/form/div[1]/select/option[7]').click()
+    dates_cont = browser.find_element_by_xpath('/html/body/div[7]/div[1]/div[2]/div/div/div/div/div/div/div/form/div[1]/select')
+    dates = dates_cont.find_elements_by_tag_name('option')
+    for date in dates:
+        if date.get_attribute('value') == str(DATE_TO_BOOK):
+            date.click()
+            break
 
     # Select preferred time
     time_options = browser.find_element_by_xpath('//*[@id="SearchTime"]')
     for option in time_options.find_elements_by_tag_name('option'):
         if option.get_attribute('value') == TIME_TO_BOOK:
             option.click()
+            break
 
     # Select num holes
     if EIGHTEEN_HOLES:
@@ -75,8 +81,9 @@ def don_valley_form_filler():
     for time_con in times:
         time = time_con.find_element_by_class_name('time').text
         time_split = time.split(':')
-        hour = int(time_split[0]) if time_con.find_element_by_class_name('am-pm').text == 'am' else (12 if int(time_split[0]) == 12 else int(time_split[0]) + 12)
+        hour = int(time_split[0]) if time_con.find_element_by_class_name('am-pm').text.lower() == 'am' else (12 if int(time_split[0]) == 12 else int(time_split[0]) + 12)
         min = int(time_split[1][0:2])
+        print(time_con.find_element_by_class_name('am-pm').text)
 
         if ((hour == LOWER_BOUND_HOUR and min >= LOWER_BOUND_MIN) or (hour > LOWER_BOUND_HOUR)) and ((hour < UPPER_BOUND_HOUR) or (hour == UPPER_BOUND_HOUR and min <= UPPER_BOUND_MIN)):
             good_times.append(time_con)
@@ -129,7 +136,7 @@ def don_valley_form_filler():
             browser.find_element_by_xpath('/html/body/div[6]/div[1]/div[2]/div/div/div/div/div/div/div/div[2]/form/div/div/label[1]').click()
             browser.find_element_by_xpath('/html/body/div[6]/div[1]/div[2]/div/div/div/div/div/div/div/a[2]').click()
         elif re.match(search, browser.current_url):
-            p = re.compile('.*' + closest_time + '.*')
+            p = re.compile('.*' + str(closest_time) + '.*')
             popups = browser.find_elements_by_class_name('GenericPopup')
             found_popup = False
 
@@ -155,7 +162,7 @@ def don_valley_form_filler():
     browser.find_element_by_xpath('//*[@id="Password"]').send_keys(PASSWORD)
     browser.find_element_by_xpath('//*[@id="sign-in-btn"]').click()
 
-    # Click past last confirmation pages (note doesn't know how to handle the required payment page
+    #Click past last confirmation pages (note doesn't know how to handle the required payment page
     try:
         browser.find_element_by_xpath('/html/body/div[16]/div[1]/div[2]/div/div/div/div/div/div/div/a[2]').click()
     except:
