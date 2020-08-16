@@ -30,8 +30,13 @@ browser = webdriver.Chrome(CHROMEDRIVER_PATH, chrome_options=chrome_options)
 browser.get('https://www.tee-on.com/PubGolf/servlet/com.teeon.teesheet.servlets.golfersection.WebBookingSearchSteps?CourseGroupID=12&BackTarget=/')
 
 # Select 5 days from now
-DATE_TO_BOOK = datetime.date.today() + datetime.timedelta(days=4)
-browser.find_element_by_xpath('/html/body/div[7]/div[1]/div[2]/div/div/div/div/div/div/div/form/div[1]/select/option[7]').click()
+DATE_TO_BOOK = datetime.date.today() + datetime.timedelta(days=5)
+dates_cont = browser.find_element_by_xpath('/html/body/div[7]/div[1]/div[2]/div/div/div/div/div/div/div/form/div[1]/select')
+dates = dates_cont.find_elements_by_tag_name('option')
+for date in dates:
+    if date.get_attribute('value') == str(DATE_TO_BOOK):
+        date.click()
+        break
 
 # Select preferred time
 time_options = browser.find_element_by_xpath('//*[@id="SearchTime"]')
@@ -73,11 +78,11 @@ UPPER_BOUND_MIN = int(UPPER_BOUND_TIME.split(':')[1])
 for time_con in times:
     time = time_con.find_element_by_class_name('time').text
     time_split = time.split(':')
-    hour = int(time_split[0]) if time_con.find_element_by_class_name('am-pm').text == 'am' else (12 if int(time_split[0]) == 12 else int(time_split[0]) + 12)
+    hour = int(time_split[0]) if time_con.find_element_by_class_name('am-pm').text.lower() == 'am' else (12 if int(time_split[0]) == 12 else int(time_split[0]) + 12)
     min = int(time_split[1][0:2])
 
-    if ((hour == LOWER_BOUND_HOUR and min >= LOWER_BOUND_MIN) or (hour > LOWER_BOUND_HOUR)) and ((hour < UPPER_BOUND_HOUR) or (hour == UPPER_BOUND_HOUR and min <= UPPER_BOUND_MIN)):
-        good_times.append(time_con)
+if ((hour == LOWER_BOUND_HOUR and min >= LOWER_BOUND_MIN) or (hour > LOWER_BOUND_HOUR)) and ((hour < UPPER_BOUND_HOUR) or (hour == UPPER_BOUND_HOUR and min <= UPPER_BOUND_MIN)):
+    good_times.append(time_con)
 
 time_split = TIME_TO_BOOK.split(':')[0]
 hour = time_split[0]
@@ -92,18 +97,18 @@ closest_time_container = 0
 closest_time_secs = 0
 closest_time = 0
 for time in good_times:
-    time_val = time.find_element_by_class_name('time').text
+    time_val = str(time.find_element_by_class_name('time').text)
     secs = DateTime.DateTime('1997/8/8 ' + time_val).timeTime()
     diff = abs(secs - pref_secs)
 
-    if closest_time_container == 0:
-        closest_time_container = time
-        closest_time_secs = diff
-        closest_time = time_val
-    elif diff < closest_time_secs:
-        closest_time_container = time
-        closest_time_secs = diff
-        closest_time = time_val
+if closest_time_container == 0:
+    closest_time_container = time
+    closest_time_secs = diff
+    closest_time = time_val
+elif diff < closest_time_secs:
+    closest_time_container = time
+    closest_time_secs = diff
+    closest_time = time_val
 
 if closest_time_container != 0:
     try:
@@ -127,20 +132,20 @@ while not re.match(login, browser.current_url):
         browser.find_element_by_xpath('/html/body/div[6]/div[1]/div[2]/div/div/div/div/div/div/div/div[2]/form/div/div/label[1]').click()
         browser.find_element_by_xpath('/html/body/div[6]/div[1]/div[2]/div/div/div/div/div/div/div/a[2]').click()
     elif re.match(search, browser.current_url):
-        p = re.compile('.*' + closest_time + '.*')
+        p = re.compile('.*' + str(closest_time) + '.*')
         popups = browser.find_elements_by_class_name('GenericPopup')
         found_popup = False
 
-        for popup in popups:
-            elements = popup.find_elements_by_xpath(".//*")
+    for popup in popups:
+        elements = popup.find_elements_by_xpath(".//*")
 
-            for element in elements:
-                if re.match(p, element.text):
-                    found_popup = True
+        for element in elements:
+            if re.match(p, element.text):
+                found_popup = True
 
-            if found_popup:
-                popup.find_element_by_xpath('.//div/a[2]').click()
-                break
+        if found_popup:
+            popup.find_element_by_xpath('.//div/a[2]').click()
+            break
 
     if count >= max_attempts:
         print("Reached max attempts to reach login page")
