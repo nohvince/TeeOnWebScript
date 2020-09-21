@@ -59,3 +59,10 @@ Only **CHROMEDRIVER_PATH** needs to be defined locally. In Heroku, the following
 |---|---|
 | CHROMEDRIVER_PATH | /app/.chromedriver/bin/chromedriver |
 | GOOGLE_CHROME_BIN | /app/.apt/usr/bin/google_chrome |
+
+Links
+==========
+https://medium.com/@mikelcbrowne/running-chromedriver-with-python-selenium-on-heroku-acc1566d161c
+https://saqibameen.com/deploy-python-cron-job-scripts-on-heroku/
+https://devcenter.heroku.com/articles/scheduler#installing-the-add-on
+https://stackoverflow.com/questions/41214157/heroku-scheduler-with-python-script/43099000
